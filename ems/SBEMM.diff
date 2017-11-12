@@ -1,0 +1,69 @@
+*** LTEMM-ORIG.ASM	Sun Nov 12 08:19:45 2017
+--- SBEMM.ASM	Sun Nov 12 08:20:28 2017
+***************
+*** 1,4 ****
+! 		PAGE	90,132
+  		NAME	LTEMM
+                  include LTEMM.MAC	; macros
+                  include LTEMM.INC	; structures
+--- 1,4 ----
+! ﻿		PAGE	90,132
+  		NAME	LTEMM
+                  include LTEMM.MAC	; macros
+                  include LTEMM.INC	; structures
+***************
+*** 2904,2909 ****
+--- 2904,2910 ----
+  emminit1:
+  		MOV	SI,OFFSET start_msg	;display start messege.
+  		CALL	strdsp
++                 CALL    enablepage              ;enable page register
+  		CALL	ckemsio			;check EMS i/o port
+  		jc	errems			;error ?
+  		CALL	ramchk			;check EMS memory
+***************
+*** 3062,3067 ****
+--- 3063,3077 ----
+  		POP	DI CX BX AX
+  		RET
+  instmsg		ENDP
++ 
++ enablepage      PROC    NEAR
++                 MOV     DX,CS:EMSIO
++                 ADD     DX,4
++                 MOV     AL,1
++                 OUT     DX,AL
++                 RET
++ enablepage      ENDP
++ 
+  ;--------------------------------------------------------------------
+  ; Check EMS i/o port.
+  ; output
+***************
+*** 3573,3584 ****
+  pagemsg		DB	'0000 Pages testing, Esc bypass test',CR,'$'
+  tstpage		DB	'0000',CR,'$'
+  info_msg        db       CR,LF
+! 		db      'Expanded Memory Manager for the Lo-tech 2MB EMS board.',CR,LF
+  		db	 CR,LF
+  		db	'Based on original works Copyright (c) 1988, Alex Tsourikov.',CR,LF
+  		db	'All rights reserved.',CR,LF
+                  db       CR,LF
+-                 db      'http://www.lo-tech.co.uk/wiki/2MB-EMS-Board',CR,LF
+                  db      'Syntax:    DEVICE=LTEMM.EXE [/switches]',CR,LF
+                  db       CR,LF
+                  db      '  /p:nnnn - Page frame address(E000)',CR,LF
+--- 3583,3595 ----
+  pagemsg		DB	'0000 Pages testing, Esc bypass test',CR,'$'
+  tstpage		DB	'0000',CR,'$'
+  info_msg        db       CR,LF
+! 		db      'Expanded Memory Manager for the smbaker's EMS/FLASH board.',CR,LF
+! 		db	 CR,LF
+! 		db	'Based on LTEMM driver at http://www.lo-tech.co.uk/wiki/2MB-EMS-Board',CR,LF
+  		db	 CR,LF
+  		db	'Based on original works Copyright (c) 1988, Alex Tsourikov.',CR,LF
+  		db	'All rights reserved.',CR,LF
+                  db       CR,LF
+                  db      'Syntax:    DEVICE=LTEMM.EXE [/switches]',CR,LF
+                  db       CR,LF
+                  db      '  /p:nnnn - Page frame address(E000)',CR,LF
