@@ -1,9 +1,10 @@
 AH0h_HandlerForDiskControllerReset:
+        MOV     AH, 0h
 	JMP	int13_success_return
 
 AH1h_HandlerForReadDiskStatus:
-        MOV     AH, 1h
-        JMP     int13_error_return
+        MOV     AH, 0h
+        JMP     int13_success_return
 
 AH2h_HandlerForReadDiskSectors:
         POP     BX                     ; restore BX which was lost in the jump
@@ -56,6 +57,7 @@ AH3h_HandlerForWriteDiskSectors:
         JMP     int13_error_return
 
 AH4h_HandlerForVerifyDiskSectors:
+        MOV     AH, 0h
         JMP     int13_success_return
 
 AH8h_HandlerForReadDiskDriveParameters:
@@ -74,15 +76,19 @@ AH8h_HandlerForReadDiskDriveParameters:
         JMP     int13_success_return_bx
 
 AH9h_HandlerForInitializeDriveParameters:
+        MOV     AH, 0h
         JMP     int13_success_return
 
 AHCh_HandlerForSeek:
+        MOV     AH, 0h
         JMP     int13_success_return
 
 AH10h_HandlerForCheckDriveReady:
+        MOV     AH, 0h
         JMP     int13_success_return
 
 AH11h_HandlerForRecalibrate:
+        MOV     AH, 0h
         JMP     int13_success_return
 
 AH15h_HandlerForReadDiskDriveSize:
