@@ -16,3 +16,7 @@ dos330: flashbio.bin ../bootdisks/dos330_1.img
 	rm -f ../images/dos330.rom
 	cp flashbio.bin ../images/dos330.rom
 	dd if=../bootdisks/dos330_1.img of=../images/dos330.rom bs=1024 seek=16
+
+dos330-nb: ../bootdisks/dos330_1.img
+	rm -f ../images/dos330-nb.rom
+	dd if=../bootdisks/dos330_1.img of=../images/dos330-nb.rom bs=1024 seek=16

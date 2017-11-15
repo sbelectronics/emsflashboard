@@ -6,6 +6,9 @@ AH1h_HandlerForReadDiskStatus:
         JMP     int13_error_return
 
 AH2h_HandlerForReadDiskSectors:
+        POP     BX                     ; restore BX which was lost in the jump
+        PUSH    BX
+
         PUSH    AX
         PUSH    CX
         PUSH    DX
@@ -45,7 +48,7 @@ AH2h_HandlerForReadDiskSectors:
         POP     CX
         POP     AX
 
-        MOV     AH, 1h
+        MOV     AH, 0h
         JMP     int13_success_return
 
 AH3h_HandlerForWriteDiskSectors:
@@ -83,16 +86,17 @@ AH11h_HandlerForRecalibrate:
         JMP     int13_success_return
 
 AH15h_HandlerForReadDiskDriveSize:
-        XOR     AX, AX
-        XOR     CX, CX
+        MOV     AH, 0
         MOV     AL, [CS:num_sec]
+        MOV     CH, 0
         MOV     CL, [CS:num_head]
-        MUL     CX
+        MUL     CX                     ; AX = sec * head
+        MOV     CH, 0
         MOV     CL, [CS:num_cyl]
-        MUL     CX
-        MOV     DX, AX
-        XCHG    DX, AX                 ; CX:DX = num of sectors
-        XOR     CX, CX
+        MUL     CX                     ; DX:AX = cyl * sec * head
+
+        MOV     CX, DX
+        MOV     DX, AX                 ; CX:DX = num of sectors
 
         MOV     AL, 0
         MOV     AH, [CS:drive_type]
