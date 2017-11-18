@@ -1,3 +1,8 @@
+;; display.asm
+;; Scott M Baker, http://www.smbaker.com/
+;;
+;; display utility functions.
+
 printstr:
         PUSH    AX
         PUSH    BX
@@ -139,5 +144,67 @@ print_hex_word:
         call    print_hex_byte
         ret
 
+printregs_enter:
+        PUSH    SI
+        PUSHF
+        LEA     SI, [debug_enter]
+        CALL    printstr
+        CALL    print_hex_word
+        LEA     SI, [debug_bx]
+        CALL    printstr
+        XCHG    AX, BX
+        CALL    print_hex_word
+        XCHG    AX, BX
+        LEA     SI, [debug_cx]
+        CALL    printstr
+        XCHG    AX, CX
+        CALL    print_hex_word
+        XCHG    AX, CX
+        LEA     SI, [debug_dx]
+        CALL    printstr
+        XCHG    AX, DX
+        CALL    print_hex_word
+        XCHG    AX, DX
+        ;;CALL    newline
+        POPF
+        POP     SI
+        RET
 
+printregs_exit:
+        PUSH    SI
+        PUSHF
+        LEA     SI, [debug_exit]
+        CALL    printstr
+        CALL    print_hex_word
+        LEA     SI, [debug_bx]
+        CALL    printstr
+        XCHG    AX, BX
+        CALL    print_hex_word
+        XCHG    AX, BX
+        LEA     SI, [debug_cx]
+        CALL    printstr
+        XCHG    AX, CX
+        CALL    print_hex_word
+        XCHG    AX, CX
+        LEA     SI, [debug_dx]
+        CALL    printstr
+        XCHG    AX, DX
+        CALL    print_hex_word
+        XCHG    AX, DX
+        POPF
+        PUSHF
+        JNC     .nocarry
+        LEA     SI, [debug_car]
+        CALL    printstr
+.nocarry:
+        CALL    newline
+        POPF
+        POP     SI
+        RET
 
+debug_enter  DB      'ent A: $'
+debug_exit  DB      ' > A: $'
+debug_bx  DB      ' B: $'
+debug_cx  DB      ' C: $'
+debug_dx  DB      ' D: $'
+debug_car DB      ' CF$'

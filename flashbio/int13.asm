@@ -1,3 +1,10 @@
+;; int13.asm
+;; Scott M Baker, http://www.smbaker.com/
+;;
+;; Int13 handler. Install the int13 handler and save the old one to a spot in
+;; ramvars. When an int13 occurs, check to see if its out drive. If so, call
+;; the appropriate handler. If it's not our drive then call the old handler.
+
 install_int13_handler:
         ;; assumes RAMVARS segment is in DS
         PUSH    SI
@@ -11,7 +18,6 @@ exchange_int13_handler:
         ;; assumes RAMVARS segment is in DS
         PUSH    ES
         PUSH    SI
-        CALL    find_ramvars
         XOR     SI, SI
         MOV     ES, SI
         MOV     SI, [RAMVARS.int13_old]
@@ -27,15 +33,23 @@ exchange_int13_handler:
         RET
 
 int13_handler:
+%ifdef  INT13_PRINTREGS
+;;        CALL    printregs_enter
+%endif
         PUSH    DS
         CALL    find_ramvars
         CMP     DL, [CS:drive_num]
         JE      .ourdrive
         CALL    exchange_int13_handler
         INT     13h
+        PUSHF                          ; make sure carry flag is preserved
         CALL    exchange_int13_handler
+        POPF
         POP     DS
-        IRET
+%ifdef  INT13_PRINTREGS
+        CALL    printregs_exit
+%endif
+        JMP     iret_fuss_with_carry_flag
 .ourdrive:
         PUSH    BX
         XOR     BX, BX
@@ -49,23 +63,95 @@ unsupported_function:
         MOV     AH, 01h
         JMP     int13_error_return
 
+iret_fuss_with_carry_flag:
+        JC .carryset
+        PUSH    AX
+        PUSH    BP
+        MOV     BP, SP
+        MOV     AX, [BP+8]
+        AND     AX, 0FFFEh
+        MOV     [BP+8], AX
+        POP     BP
+        POP     AX
+        IRET
+.carryset:
+        PUSH    AX
+        PUSH    BP
+        MOV     BP, SP
+        MOV     AX, [BP+8]
+        OR      AX, 1
+        MOV     [BP+8], AX
+        POP     BP
+        POP     AX
+        IRET
+
+
+iret_fuss_with_carry_flag_old:
+        ;; Since IRET will restore the carry flag, tamper with the stack to
+        ;; set the carry flag to what we want.
+        JC .carryset
+        ADD SP, 4                      ; skip over CS and IP
+        POPF
+        CLC
+        PUSHF
+        SUB SP, 4
+        IRET
+.carryset:
+        ADD SP, 4                      ; skip over CS and IP
+        POPF
+        STC
+        PUSHF
+        SUB SP, 4
+        IRET
+
 int13_error_return:
+        MOV     [RAMVARS.last_ah], ah
+
         POP     BX
         POP     DS
         STC                       ; set carry
-        IRET
+%ifdef  INT13_PRINTREGS
+        CALL    printregs_exit
+%endif
+        JMP     iret_fuss_with_carry_flag
 
 int13_success_return:
+        ;; For all functions except 8h and 15h. Error code is in AH.
+        MOV     [RAMVARS.last_ah], ah
+
         POP     BX
         POP     DS
         CLC                       ; clear carry
-        IRET
+%ifdef  INT13_PRINTREGS
+        CALL    printregs_exit
+%endif
+        JMP     iret_fuss_with_carry_flag
+
+int13_success_return_zero:
+        ;; For function 15h, which returns AH != 0, even on success
+        MOV     [RAMVARS.last_ah], BYTE 0
+
+        POP     BX
+        POP     DS
+        CLC                       ; clear carry
+%ifdef  INT13_PRINTREGS
+        CALL    printregs_exit
+%endif
+        JMP     iret_fuss_with_carry_flag
 
 int13_success_return_bx:
+        ;; For function 8h, and anyone else who returns stuff in BX
+        MOV     [RAMVARS.last_ah], ah
+
         POP     DS                ; get BX off the stack; we'll overwrite DX in a moment
         POP     DS
         CLC                       ; clear carry
-        IRET
+%ifdef  INT13_PRINTREGS
+        CALL    printregs_exit
+%endif
+        JMP     iret_fuss_with_carry_flag
+
+        ALIGN   2
 
 int13_jumptable:
         dw      AH0h_HandlerForDiskControllerReset                      ; 00h, Disk Controller Reset (All)
@@ -108,5 +194,10 @@ int13_jumptable:
         dw      AH25h_HandlerForGetDriveInformation                                     ; 25h, Get Drive Information (PS/1)
 
 
-
+debug1  DB      'enter AX: $'
+debug2  DB      'success exit AX: $'
+debug3  DB      'success2 exit AX: $'
+debug4  DB      'error exit AX: $'
+debug5  DB      ' CX: $'
+debug6  DB      ' DX: $'
 

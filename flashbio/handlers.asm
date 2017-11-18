@@ -1,9 +1,16 @@
+;; handlers.asm
+;; Scott M Baker, http://www.smbaker.com/
+;;
+;; These are the handlers for int13h subfunctions. Each function gets a
+;; separate handler.
+
 AH0h_HandlerForDiskControllerReset:
         MOV     AH, 0h
 	JMP	int13_success_return
 
 AH1h_HandlerForReadDiskStatus:
-        MOV     AH, 0h
+        ;;MOV     AH, 0h
+        MOV     AH, [RAMVARS.last_ah]
         JMP     int13_success_return
 
 AH2h_HandlerForReadDiskSectors:
@@ -15,6 +22,7 @@ AH2h_HandlerForReadDiskSectors:
         PUSH    DX
         PUSH    SI
         PUSH    DI
+        PUSH    DS
 
         MOV     DI, BX                 ; ES:DI = destination
 
@@ -43,6 +51,7 @@ AH2h_HandlerForReadDiskSectors:
         DEC     BX                     ; decrement blocks remaining
         JNZ     .next_sector
 
+        POP     DS
         POP     DI
         POP     SI
         POP     DX
@@ -54,6 +63,7 @@ AH2h_HandlerForReadDiskSectors:
 
 AH3h_HandlerForWriteDiskSectors:
         MOV     AH, 3h                 ; write protected
+        MOV     AL, 0                  ; zero sectors written
         JMP     int13_error_return
 
 AH4h_HandlerForVerifyDiskSectors:
@@ -92,6 +102,9 @@ AH11h_HandlerForRecalibrate:
         JMP     int13_success_return
 
 AH15h_HandlerForReadDiskDriveSize:
+        TEST    DL, DL                 ; from xt-ide: do not store sector
+        JNS     .floppy                ; count if this is a floppy.
+
         MOV     AH, 0
         MOV     AL, [CS:num_sec]
         MOV     CH, 0
@@ -104,9 +117,10 @@ AH15h_HandlerForReadDiskDriveSize:
         MOV     CX, DX
         MOV     DX, AX                 ; CX:DX = num of sectors
 
-        MOV     AL, 0
+.floppy:
+        MOV     AL, 0                  ; why?
         MOV     AH, [CS:drive_type]
-        JMP     int13_success_return
+        JMP     int13_success_return_zero
 
 AH23h_HandlerForSetControllerFeatures:
         MOV     AH, 1h

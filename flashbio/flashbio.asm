@@ -1,13 +1,38 @@
+;; flashbio.asm
+;; Scott M Baker, http://www.smbaker.com/
+;;
+;; This is the main file. It includes everything else, installs the int13h
+;; handler, and returns.
+
         org 100h
 
 section .text
+
+;; Uncomment the following for lots of debugging
+;; %define INT13_PRINTREGS
+
+;; Uncomment the following to install as a TSR, for testing of the COM file
+;; from the dos prompt.
+;; %define DOS_COM_TSR
+
+%ifdef DOS_COM_TSR
+find_ramvars equ find_ramvars_dos
+steal_ram    equ steal_ram_dos
+finished     equ tsr
+%else
+find_ramvars  equ find_ramvars_bios
+steal_ram     equ steal_ram_bios
+finished      equ ret_bios_search
+%endif
 
 start:
         JMP     main
 
 %include "romvar.asm"
 
-main:   CALL    find_ramvars
+main:   PUSHF
+        CALL    steal_ram
+        CALL    find_ramvars
         CALL    banner
         CALL    enable_page
         CALL    install_int13_handler
@@ -22,14 +47,24 @@ main:   CALL    find_ramvars
         CALL    print_hex_word
         CALL    newline
 
-        CALL    test_chs_to_block
+        ;;CALL    test_chs_to_block
 
         LEA     SI, [msg_installed]
         CALL    printstr
-        JMP     tsr
-        ;JMP     retdos
+
+        ;; point banks 1-3 to something other than the bios extension, to
+        ;; prevent bios from detecting the extension again in another bank.
+        MOV     AL, 1
+        CALL    set_page1
+        CALL    set_page2
+        CALL    set_page3
+
+        POPF
+        JMP     finished
 
 test_chs_to_block:
+        ;; An early test case for checking the C/H/S -> blk math.
+        ;; Math is hard.
         MOV     CH, 1   ; cyl
         MOV     CL, 3   ; sector
         MOV     DH, 1   ; head

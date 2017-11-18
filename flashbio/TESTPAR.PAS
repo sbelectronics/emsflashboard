@@ -43,12 +43,12 @@ var
 
 begin;
   if (paramcount<>1) then begin
-    writeln('syntax: testsz <drive>');
+    writeln('syntax: testpar <drive>');
     exit;
   end;
 
   val(paramstr(1), drive, junk);
 
   bio_getparam(drive, num_cyl, num_head, num_sec, floppy_type, result);
-  writeln('getsize result = ', result, ' type = ', floppy_type, ' c = ', num_cyl, ' h = ', num_head, ' s = ', num_sec);
+  writeln('getparam result = ', result, ' type = ', floppy_type, ' c = ', num_cyl, ' h = ', num_head, ' s = ', num_sec);
 end.
