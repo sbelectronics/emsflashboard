@@ -11,3 +11,13 @@ There is a Makefile which will use NASM to build a binary of the flash bios exte
 
 This has been tested using a 360 KB DOS 3.30 image.
 
+## Acknowledgements ##
+
+xt-ide was used as a frequent reference while writing this BIOS extension. It's been a few decades since I've done x86 assembly
+and it pretty much shows in the code. Without the help of the xt-ide source to see the "right way" to do things, I'd have been
+completely lost, instead of just mildly lost. 
+
+## Disclaimer ##
+
+There's no guarantee, expressed or implied, that this software will work as described. To the contrary, it could turn your 
+prized retrocmputer into a smoldering pile of ash for all I know. Use at your own risk. 
