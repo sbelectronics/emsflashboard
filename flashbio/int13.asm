@@ -65,26 +65,17 @@ unsupported_function:
 
 iret_fuss_with_carry_flag:
         JC .carryset
-        PUSH    AX
         PUSH    BP
         MOV     BP, SP
-        MOV     AX, [BP+8]
-        AND     AX, 0FFFEh
-        MOV     [BP+8], AX
+        AND     BYTE [BP+6], 0FEh
         POP     BP
-        POP     AX
         IRET
 .carryset:
-        PUSH    AX
         PUSH    BP
         MOV     BP, SP
-        MOV     AX, [BP+8]
-        OR      AX, 1
-        MOV     [BP+8], AX
+        OR      BYTE [BP+6], 1
         POP     BP
-        POP     AX
         IRET
-
 
 iret_fuss_with_carry_flag_old:
         ;; Since IRET will restore the carry flag, tamper with the stack to
