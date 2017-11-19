@@ -20,3 +20,19 @@ dos330: flashbio.bin ../bootdisks/dos330_1.img
 dos330-nb: ../bootdisks/dos330_1.img
 	rm -f ../images/dos330-nb.rom
 	dd if=../bootdisks/dos330_1.img of=../images/dos330-nb.rom bs=1024 seek=16
+
+dos331: flashbio.bin ../bootdisks/dos331_144.img
+	rm -f ../images/dos331_144.rom*
+	cp flashbio.bin ../images/dos331_144.rom
+	dd if=../bootdisks/dos331_144.img of=../images/dos331_144.rom bs=1024 seek=16
+	python ./patchrom.py ../images/dos331_144.rom num_cyl=80 num_head=2 num_sec=18 floppy_type=4
+	split --bytes 512K --numeric-suffixes --suffix-length=1 ../images/dos331_144.rom ../images/dos331_144.rom.
+	rm -f ../images/dos331_144.rom
+
+dos331_smb: flashbio.bin ../bootdisks/dos331_smb.img
+	rm -f ../images/dos331_smb.rom*
+	cp flashbio.bin ../images/dos331_smb.rom
+	dd if=../bootdisks/dos331_smb.img of=../images/dos331_smb.rom bs=1024 seek=16
+	python ./patchrom.py ../images/dos331_smb.rom num_cyl=80 num_head=2 num_sec=18 floppy_type=4
+	split --bytes 512K --numeric-suffixes --suffix-length=1 ../images/dos331_smb.rom ../images/dos331_smb.rom.
+	rm -f ../images/dos331_smb.rom
