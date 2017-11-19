@@ -44,8 +44,8 @@ AH2h_HandlerForReadDiskSectors:
         ADD     SI, 0x4000             ; DS:SI = source; use window 1
 
         CLD                            ; clear direction flag
-        MOV     CX, 0200h              ; copy 512 bytes
-        REP     MOVSB
+        MOV     CX, 0100h              ; copy 512 bytes
+        REP     MOVSW
 
         INC     DX                     ; increment block count
         DEC     BX                     ; decrement blocks remaining
