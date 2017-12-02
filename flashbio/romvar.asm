@@ -13,6 +13,9 @@ romvar_sig      DB      "FLASHBIO_ROM_VARS",0
 default_page_reg   EQU    260h
 default_frame_seg  EQU    0E000h
 
+WRITE_PROTECT      EQU    0
+WRITE_IGNORE       EQU    1
+
 page_reg     	DW	default_page_reg
 page_enable     DW      default_page_reg + 4
 page_frame_seg	DW      default_frame_seg
@@ -34,6 +37,8 @@ floppy_type     DB      1h        ; 360K floppy (func 08h)
 num_cyl         DB      40
 num_head        DB      2
 num_sec         DB      9
+
+write_mode      DB      WRITE_PROTECT
 
 ;; Disk parameter table. I'm unsure how important all of this is.
 

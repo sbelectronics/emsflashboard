@@ -34,6 +34,8 @@ main:   PUSHF
         CALL    steal_ram
         CALL    find_ramvars
         CALL    banner
+        MOV     AL, 0
+        CALL    set_page0              ; make sure page0=0 before enabling
         CALL    enable_page
         CALL    install_int13_handler
 

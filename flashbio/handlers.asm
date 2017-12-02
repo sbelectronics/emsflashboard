@@ -62,6 +62,20 @@ AH2h_HandlerForReadDiskSectors:
         JMP     int13_success_return
 
 AH3h_HandlerForWriteDiskSectors:
+        MOV     AH, [cs:write_mode]
+        CMP     AH, WRITE_PROTECT
+        JNE     .NOT_WRITE_PROTECT
+        MOV     AH, 3h                 ; write protected
+        MOV     AL, 0                  ; zero sectors written
+        JMP     int13_error_return
+.NOT_WRITE_PROTECT:
+        CMP     AH, WRITE_IGNORE
+        JNE     .NOT_WRITE_IGNORE
+        MOV     AH, 0h                 ; silently ignore the write
+        JMP     int13_success_return
+.NOT_WRITE_IGNORE:
+        ; this would be where we write the sectors
+        ;  ... but we don't do that, so fail.
         MOV     AH, 3h                 ; write protected
         MOV     AL, 0                  ; zero sectors written
         JMP     int13_error_return

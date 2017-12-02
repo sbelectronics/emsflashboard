@@ -4,6 +4,15 @@
 ;; Page flipping functions. page_enable() must be called before pages can
 ;; be flipped.
 
+set_page0:
+	;; set page 1 register to value in AL
+
+	PUSH	DX
+	MOV	DX, [CS:page_reg]
+	OUT	DX, AL
+	POP	DX
+	RET
+
 set_page1:
 	;; set page 1 register to value in AL
 

@@ -36,3 +36,11 @@ dos331_smb: flashbio.bin ../bootdisks/dos331_smb.img
 	python ./patchrom.py ../images/dos331_smb.rom num_cyl=80 num_head=2 num_sec=18 floppy_type=4
 	split --bytes 512K --numeric-suffixes --suffix-length=1 ../images/dos331_smb.rom ../images/dos331_smb.rom.
 	rm -f ../images/dos331_smb.rom
+
+dos331_krynn: flashbio.bin ../bootdisks/dos331_krynn.img
+	rm -f ../images/dos331_krynn.rom*
+	cp flashbio.bin ../images/dos331_krynn.rom
+	dd if=../bootdisks/dos331_krynn.img of=../images/dos331_krynn.rom bs=1024 seek=16
+	python ./patchrom.py ../images/dos331_krynn.rom num_cyl=80 num_head=2 num_sec=18 floppy_type=4 write_mode=1
+	split --bytes 512K --numeric-suffixes --suffix-length=1 ../images/dos331_krynn.rom ../images/dos331_krynn.rom.
+	rm -f ../images/dos331_krynn.rom

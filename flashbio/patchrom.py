@@ -3,9 +3,9 @@ import string, struct, sys
 class Romvars:
     def __init__(self):
         self.fieldnames = ("page_reg", "page_enable", "page_frame_seg", "drive_num", "drive_type", "floppy_type",
-                           "num_cyl", "num_head", "num_sec")
+                           "num_cyl", "num_head", "num_sec", "write_mode")
 
-        self.format = "<17sxHHHBBBBBB"
+        self.format = "<17sxHHHBBBBBBB"
 
     def find_romvars(self, rom): 
         for i in range(0, len(rom)):
@@ -23,8 +23,9 @@ class Romvars:
         self.romvars_offset = romvars_offset
 
         (self.romvar_sig, self.page_reg, self.page_enable, self.page_frame_seg, 
-         self.drive_num, self.drive_type, self.floppy_type, self.num_cyl, self.num_head, self.num_sec) = \
-            struct.unpack(self.format, rom[romvars_offset:romvars_offset+30])
+         self.drive_num, self.drive_type, self.floppy_type, self.num_cyl, self.num_head, self.num_sec,
+         self.write_mode) = \
+            struct.unpack(self.format, rom[romvars_offset:romvars_offset+31])
 
         rom_len = ord(rom[2])*512
         cksum = 0
@@ -38,7 +39,8 @@ class Romvars:
         f.seek(self.romvars_offset)
 
         tmp = struct.pack(self.format, self.romvar_sig, self.page_reg, self.page_enable, self.page_frame_seg,
-                          self.drive_num, self.drive_type, self.floppy_type, self.num_cyl, self.num_head, self.num_sec)
+                          self.drive_num, self.drive_type, self.floppy_type, self.num_cyl, self.num_head, self.num_sec,
+                          self.write_mode)
 
         f.write(tmp)
 
