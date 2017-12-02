@@ -103,6 +103,7 @@ banner: LEA     SI,[title]
 %include "display.asm"
 %include "page.asm"
 %include "util.asm"
+%include "wrtflash.asm"
 %include "int13.asm"
 %include "handlers.asm"
 
