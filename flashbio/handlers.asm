@@ -159,6 +159,8 @@ write_one_sector:
         PUSH    DS
         PUSH    ES
 
+        MOV     SI, BX                 ; :SI = user buffer
+
         CALL    chs_to_blk             ; DX = block number, AX/BX/CX=wrecked
         AND     DX, 07h                ; There are 8 512B blocks per 4K sector
         SHL     DX, 9                  ; DX is offset into 4K sector
@@ -170,8 +172,7 @@ write_one_sector:
         MOV     DI, RAMVARS.writebuf   ; ES:DI = ram buffer
         ADD     DI, DX                 ; ES:DI = destination address
 
-        MOV     DS, AX
-        MOV     SI, BX                 ; DS:SI = user buffer
+        MOV     DS, AX                 ; DS:SI = user buffer
 
         CLD
         MOV     CX, 0100h              ; copy 512 bytes
@@ -199,6 +200,7 @@ write_one_sector:
 
         CALL    chs_to_blk             ; DX = block number, AX/BX/CX=wrecked
         CALL    blk_to_page            ; AX = page, SI = offset, CX=wrecked
+        INC     AL                     ; inc page number because page0 = BIOS ext
 
         MOV     DI, SI                 ; DI = offset within page
         AND     DI, 0xF000             ; mask off lower 12 bites

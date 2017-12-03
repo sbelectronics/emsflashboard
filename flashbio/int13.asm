@@ -34,7 +34,7 @@ exchange_int13_handler:
 
 int13_handler:
 %ifdef  INT13_PRINTREGS
-;;        CALL    printregs_enter
+        CALL    printregs_enter
 %endif
         PUSH    DS
         CALL    find_ramvars

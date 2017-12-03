@@ -9,7 +9,7 @@
 section .text
 
 ;; Uncomment the following for lots of debugging
-;; %define INT13_PRINTREGS
+%define INT13_PRINTREGS
 
 ;; Uncomment the following to install as a TSR, for testing of the COM file
 ;; from the dos prompt.
@@ -42,6 +42,10 @@ main:   PUSHF
         CALL    set_page0              ; make sure page0=0 before enabling
         CALL    enable_page
         CALL    install_int13_handler
+
+%ifdef WRITE_SUPPORT
+        CALL    copy_waitfunc
+%endif
 
         LEA     SI, [msg_int13_1]
         CALL    printstr
@@ -107,7 +111,11 @@ banner: LEA     SI,[title]
 %include "display.asm"
 %include "page.asm"
 %include "util.asm"
+
+%ifdef WRITE_SUPPORT
 %include "wrtflash.asm"
+%endif
+
 %include "int13.asm"
 %include "handlers.asm"
 

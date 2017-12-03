@@ -74,6 +74,8 @@ struc   RAMVARS
         .int13_old  resb 4
         .last_ah    resb 1
 %ifdef WRITE_SUPPORT
+        .write_and_wait_func_addr   resb 4
+        .write_and_wait_func   resb 128
         .writebuf   resb 4096
 %endif
 endstruc

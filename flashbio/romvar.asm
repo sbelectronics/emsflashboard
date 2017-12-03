@@ -39,7 +39,7 @@ num_cyl         DB      40
 num_head        DB      2
 num_sec         DB      9
 
-write_mode      DB      WRITE_PROTECT
+write_mode      DB      WRITE_WRITE
 
 ;; Disk parameter table. I'm unsure how important all of this is.
 

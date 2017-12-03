@@ -4,7 +4,7 @@ flashbio.bin: flashbio.com pcjrcart
 	./pcjrcart flashbio.com
 
 flashbio.com: flashbio.asm
-	nasm flashbio.asm -fbin -o flashbio.com
+	nasm flashbio.asm -fbin -l flashbio.lst -o flashbio.com
 
 pcjrcart:
 	gcc -o pcjrcart pcjrcart.c
@@ -16,6 +16,11 @@ dos330: flashbio.bin ../bootdisks/dos330_1.img
 	rm -f ../images/dos330.rom
 	cp flashbio.bin ../images/dos330.rom
 	dd if=../bootdisks/dos330_1.img of=../images/dos330.rom bs=1024 seek=16
+
+dos330-wd: flashbio.bin ../workdisk.img
+	rm -f ../images/dos330-wd.rom
+	cp flashbio.bin ../images/dos330-wd.rom
+	dd if=../workdisk.img of=../images/dos330-wd.rom bs=1024 seek=16
 
 dos330-nb: ../bootdisks/dos330_1.img
 	rm -f ../images/dos330-nb.rom
