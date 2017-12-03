@@ -19,7 +19,11 @@ steal_ram_bios:
 	XOR     AX, AX
         MOV     DS, AX          ; DS=0, seg of BDA
 	MOV	AX, [DS:413h]   ; number of 1K pages is at 0:413
+%ifdef WRITE_SUPPORT
+        SUB     AX, 5           ; steal 5KB
+%else
 	DEC	AX              ; steal 1KB
+%endif
 	MOV	[DS:413h], AX   ; store the reduced number of pages
 
 	SHL     AX, 6 		; AX holds segment of RAMVARS
@@ -55,7 +59,7 @@ steal_ram_dos:
 
 find_ramvars_dos:
         ;; For developing in DOS. Just assume that RAMVARS are at CS plus
-        ;; 7K
+        ;; 7K. The TSR will have reserved 12K, so that leaves us 5K of ramvars
         ;; Returns:
         ;;     DS - RamVars Segment
         PUSH    AX
@@ -68,5 +72,8 @@ find_ramvars_dos:
 struc   RAMVARS
 	.signature  resb 2
         .int13_old  resb 4
-        .last_ah resb 1
+        .last_ah    resb 1
+%ifdef WRITE_SUPPORT
+        .writebuf   resb 4096
+%endif
 endstruc

@@ -13,7 +13,7 @@ tsr:
         ;; terminate and stay resident, when run as a COM file.
         mov     ah, 31h
         mov     al, 0
-        mov     dx, 200h ; reserve 8k
+        mov     dx, 300h ; reserve 12k
         int     21h
 
 ret_bios_search:

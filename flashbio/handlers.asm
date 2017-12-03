@@ -74,11 +74,153 @@ AH3h_HandlerForWriteDiskSectors:
         MOV     AH, 0h                 ; silently ignore the write
         JMP     int13_success_return
 .NOT_WRITE_IGNORE:
-        ; this would be where we write the sectors
-        ;  ... but we don't do that, so fail.
+%ifndef WRITE_SUPPORT
+        ;; write support is not compiled in, so return write protected error
         MOV     AH, 3h                 ; write protected
         MOV     AL, 0                  ; zero sectors written
         JMP     int13_error_return
+%else
+        ;; this must be WRITE_WRITE
+        ;;   * * * untested * * *
+        POP     BX                     ; restore BX which was lost in the jump
+        PUSH    BX
+
+        PUSH    CX
+        MOV     AH, AL                 ; number of sectors to write in AH
+
+.NEXT_SECTOR:
+        CALL    write_one_sector
+        INC     CL                     ; increment sector number
+        ADD     BX, 512                ; increment source pointer
+        DEC     AH                     ; decrement sectors remaining
+        JNZ     .NEXT_SECTOR
+
+        POP     CX                     ; restore CX
+
+        MOV     AH, 0h                 ; AL still has sector count
+        JMP     int13_success_return
+
+write_one_sector:
+        ;; on entry
+        ;;   CH = track number
+        ;;   CL = sector number
+        ;;   DH = head number
+        ;;   DS = ramvars segment
+        ;;   ES:BX = user buffer
+
+        ;; Part 1: transfer from Flash to writebuf
+
+        PUSH    AX
+        PUSH    BX
+        PUSH    CX
+        PUSH    DX
+        PUSH    SI
+        PUSH    DI
+        PUSH    DS
+        PUSH    ES
+
+        PUSH    DS
+        POP     ES
+        MOV     DI, RAMVARS.writebuf   ; ES:DI = ram buffer
+
+        CALL    chs_to_blk             ; DX = block number, AX/BX/CX=wrecked
+
+        MOV     BX, [CS:page_frame_seg]
+        MOV     DS, BX                 ; DS = page frame source segment
+
+        CALL    blk_to_page            ; AX = page, SI = offset, CX=wrecked
+        INC     AL                     ; inc page number because page0 = BIOS ext
+        CALL    set_page1
+
+        ADD     SI, 0x4000             ; DS:SI = source; use window 1
+        AND     SI, 0xF000             ; mask off lower 12 bits to transfer whole block
+
+        CLD                            ; clear direction flag
+        MOV     CX, 0800h              ; copy 4096 bytes
+        REP     MOVSW
+
+        POP     ES
+        POP     DS
+        POP     DI
+        POP     SI
+        POP     DX
+        POP     CX
+        POP     BX
+        POP     AX
+
+        ;; Part 2: transfer from user buffer to writebuf
+
+        PUSH    AX
+        PUSH    BX
+        PUSH    CX
+        PUSH    DX
+        PUSH    SI
+        PUSH    DI
+        PUSH    DS
+        PUSH    ES
+
+        CALL    chs_to_blk             ; DX = block number, AX/BX/CX=wrecked
+        AND     DX, 07h                ; There are 8 512B blocks per 4K sector
+        SHL     DX, 9                  ; DX is offset into 4K sector
+
+        MOV     AX, ES                 ; save user segment in AX
+
+        PUSH    DS
+        POP     ES
+        MOV     DI, RAMVARS.writebuf   ; ES:DI = ram buffer
+        ADD     DI, DX                 ; ES:DI = destination address
+
+        MOV     DS, AX
+        MOV     SI, BX                 ; DS:SI = user buffer
+
+        CLD
+        MOV     CX, 0100h              ; copy 512 bytes
+        REP     MOVSW
+
+        POP     ES
+        POP     DS
+        POP     DI
+        POP     SI
+        POP     DX
+        POP     CX
+        POP     BX
+        POP     AX
+
+        ;; Part 3: transfer from writebuf to flash
+
+        PUSH    AX
+        PUSH    BX
+        PUSH    CX
+        PUSH    DX
+        PUSH    SI
+        PUSH    DI
+        PUSH    DS
+        PUSH    ES
+
+        CALL    chs_to_blk             ; DX = block number, AX/BX/CX=wrecked
+        CALL    blk_to_page            ; AX = page, SI = offset, CX=wrecked
+
+        MOV     DI, SI                 ; DI = offset within page
+        AND     DI, 0xF000             ; mask off lower 12 bites
+
+        CALL    erase_flash_sector
+
+        MOV     SI, RAMVARS.writebuf   ; DS:SI = ram buffer
+        MOV     CX, 4096               ; write the whole sector
+        CALL    write_flash
+
+        POP     ES
+        POP     DS
+        POP     DI
+        POP     SI
+        POP     DX
+        POP     CX
+        POP     BX
+        POP     AX
+
+        RET
+%endif
+
 
 AH4h_HandlerForVerifyDiskSectors:
         MOV     AH, 0h

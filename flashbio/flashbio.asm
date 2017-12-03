@@ -15,6 +15,10 @@ section .text
 ;; from the dos prompt.
 ;; %define DOS_COM_TSR
 
+;; Uncomment the following to enable write to flash. It will use up an
+;; additional 4K of lower memory.
+%define WRITE_SUPPORT
+
 %ifdef DOS_COM_TSR
 find_ramvars equ find_ramvars_dos
 steal_ram    equ steal_ram_dos

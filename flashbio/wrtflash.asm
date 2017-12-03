@@ -118,7 +118,7 @@ erase_flash_sector:
         CMP     BL, BH
         JNE     .WAIT
 
-        SUB     DI, 4000h              ; restore DX
+        SUB     DI, 4000h              ; restore DI
 
         RET
 

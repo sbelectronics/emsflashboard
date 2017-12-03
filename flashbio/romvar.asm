@@ -15,6 +15,7 @@ default_frame_seg  EQU    0E000h
 
 WRITE_PROTECT      EQU    0
 WRITE_IGNORE       EQU    1
+WRITE_WRITE        EQU    2
 
 page_reg     	DW	default_page_reg
 page_enable     DW      default_page_reg + 4
