@@ -12,7 +12,7 @@ AH1h_HandlerForReadDiskStatus:
         MOV     AH, [RAMVARS.last_ah]
 	OR      AH, AH
 	JZ      .NO_ERROR
-	STC
+	JMP     int13_error_return
 .NO_ERROR:
         JMP     int13_success_return
 
