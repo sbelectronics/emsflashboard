@@ -9,8 +9,11 @@ AH0h_HandlerForDiskControllerReset:
 	JMP	int13_success_return
 
 AH1h_HandlerForReadDiskStatus:
-        ;;MOV     AH, 0h
         MOV     AH, [RAMVARS.last_ah]
+	OR      AH, AH
+	JZ      .NO_ERROR
+	STC
+.NO_ERROR:
         JMP     int13_success_return
 
 AH2h_HandlerForReadDiskSectors:
@@ -29,6 +32,10 @@ AH2h_HandlerForReadDiskSectors:
         PUSH    AX
         CALL    chs_to_blk             ; DX = block number, AX/BX/CX=wrecked
         POP     AX
+
+        PUSH    0
+        POP     DS
+        OR      [DS:43Fh], BYTE 1h     ; turn on the motor
 
         MOV     BX, [CS:page_frame_seg]
         MOV     DS, BX                 ; DS = page frame source segment
@@ -238,9 +245,15 @@ AH8h_HandlerForReadDiskDriveParameters:
         MOV     DH, [CS:num_head]
         DEC     DH                     ; number of heads - 1
         MOV     DL, 1h
+        PUSH    0
+        POP     ES
+        MOV     [ES:490h], BYTE 093h   ; update BDA to reflect 360k floppy
+        OR      [ES:43Fh], BYTE 1h     ; turn on the motor
+        OR      [ES:43Eh], BYTE 80h    ; pretend the interrupt is always clear
         PUSH    CS                     ; ES:DI = dpt
         POP     ES
-        MOV     DI, [dpt]
+        MOV     DI, dpt
+        MOV     BH, 0                  ; from xi8088 bios
         JMP     int13_success_return_bx
 
 AH9h_HandlerForInitializeDriveParameters:
@@ -260,6 +273,7 @@ AH11h_HandlerForRecalibrate:
         JMP     int13_success_return
 
 AH15h_HandlerForReadDiskDriveSize:
+        PUSH    AX
         TEST    DL, DL                 ; from xt-ide: do not store sector
         JNS     .floppy                ; count if this is a floppy.
 
@@ -276,7 +290,7 @@ AH15h_HandlerForReadDiskDriveSize:
         MOV     DX, AX                 ; CX:DX = num of sectors
 
 .floppy:
-        MOV     AL, 0                  ; why?
+        POP     AX                     ; restore AL
         MOV     AH, [CS:drive_type]
         JMP     int13_success_return_zero
 

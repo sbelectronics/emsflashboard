@@ -12,6 +12,16 @@ pcjrcart:
 clean:
 	rm -f pcjrcart flashbio.bin flashbio.com
 
+dos310: flashbio.bin ../bootdisks/dos310_1.img
+	rm -f ../images/dos310.rom
+	cp flashbio.bin ../images/dos310.rom
+	dd if=../bootdisks/dos310_1.img of=../images/dos310.rom bs=1024 seek=16
+
+dos321: flashbio.bin ../bootdisks/dos321_1.img
+	rm -f ../images/dos321.rom
+	cp flashbio.bin ../images/dos321.rom
+	dd if=../bootdisks/dos321_1.img of=../images/dos321.rom bs=1024 seek=16
+
 dos330: flashbio.bin ../bootdisks/dos330_1.img
 	rm -f ../images/dos330.rom
 	cp flashbio.bin ../images/dos330.rom

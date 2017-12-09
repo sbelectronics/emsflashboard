@@ -145,52 +145,89 @@ print_hex_word:
         ret
 
 printregs_enter:
+        PUSH    AX
         PUSH    SI
         PUSHF
         LEA     SI, [debug_enter]
         CALL    printstr
         CALL    print_hex_word
+        ;
         LEA     SI, [debug_bx]
         CALL    printstr
-        XCHG    AX, BX
+        MOV     AX, BX
         CALL    print_hex_word
-        XCHG    AX, BX
+        ;
         LEA     SI, [debug_cx]
         CALL    printstr
-        XCHG    AX, CX
+        MOV     AX, CX
         CALL    print_hex_word
-        XCHG    AX, CX
+        ;
         LEA     SI, [debug_dx]
         CALL    printstr
-        XCHG    AX, DX
+        MOV     AX, DX
         CALL    print_hex_word
-        XCHG    AX, DX
-        ;;CALL    newline
+%ifdef PRINTREGS_PRINTSEGS
+        ;
+        LEA     SI, [debug_ds]
+        CALL    printstr
+        MOV     AX, DS
+        CALL    print_hex_word
+        ;
+        LEA     SI, [debug_es]
+        CALL    printstr
+        MOV     AX, ES
+        CALL    print_hex_word
+        ;
+        LEA     SI, [debug_ss]
+        CALL    printstr
+        MOV     AX, SS
+        CALL    print_hex_word
+        CALL    newline
+%endif
         POPF
         POP     SI
+        POP     AX
         RET
 
 printregs_exit:
+        PUSH    AX
         PUSH    SI
         PUSHF
         LEA     SI, [debug_exit]
         CALL    printstr
         CALL    print_hex_word
+        ;
         LEA     SI, [debug_bx]
         CALL    printstr
-        XCHG    AX, BX
+        MOV     AX, BX
         CALL    print_hex_word
-        XCHG    AX, BX
+        ;
         LEA     SI, [debug_cx]
         CALL    printstr
-        XCHG    AX, CX
+        MOV     AX, CX
         CALL    print_hex_word
-        XCHG    AX, CX
+        ;
         LEA     SI, [debug_dx]
         CALL    printstr
-        XCHG    AX, DX
+        MOV     AX, DX
         CALL    print_hex_word
-        XCHG    AX, DX
+%ifdef PRINTREGS_PRINTSEGS
+        ;
+        LEA     SI, [debug_ds]
+        CALL    printstr
+        MOV     AX, DS
+        CALL    print_hex_word
+        ;
+        LEA     SI, [debug_es]
+        CALL    printstr
+        MOV     AX, ES
+        CALL    print_hex_word
+        ;
+        LEA     SI, [debug_ss]
+        CALL    printstr
+        MOV     AX, SS
+        CALL    print_hex_word
+%endif
         POPF
         PUSHF
         JNC     .nocarry
@@ -200,6 +237,7 @@ printregs_exit:
         CALL    newline
         POPF
         POP     SI
+        POP     AX
         RET
 
 debug_enter  DB      'ent A: $'
@@ -207,4 +245,7 @@ debug_exit  DB      ' > A: $'
 debug_bx  DB      ' B: $'
 debug_cx  DB      ' C: $'
 debug_dx  DB      ' D: $'
+debug_es  DB      ' es: $'
+debug_ds  DB      ' ds: $'
+debug_ss  DB      ' ss: $'
 debug_car DB      ' CF$'

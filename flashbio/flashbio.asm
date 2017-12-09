@@ -9,7 +9,8 @@
 section .text
 
 ;; Uncomment the following for lots of debugging
-%define INT13_PRINTREGS
+;; %define INT13_PRINTREGS
+;; %define PRINTREGS_PRINTSEGS
 
 ;; Uncomment the following to install as a TSR, for testing of the COM file
 ;; from the dos prompt.
@@ -35,6 +36,7 @@ start:
 %include "romvar.asm"
 
 main:   PUSHF
+        PUSH    DS
         CALL    steal_ram
         CALL    find_ramvars
         CALL    banner
@@ -69,6 +71,7 @@ main:   PUSHF
         CALL    set_page2
         CALL    set_page3
 
+        POP     DS
         POPF
         JMP     finished
 

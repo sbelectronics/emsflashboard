@@ -39,20 +39,32 @@ num_cyl         DB      40
 num_head        DB      2
 num_sec         DB      9
 
-write_mode      DB      WRITE_WRITE
+write_mode      DB      WRITE_PROTECT
 
 ;; Disk parameter table. I'm unsure how important all of this is.
 
 dpt:
-dpt_head_unload DB      0             ; unload=32ms, steprate=2ms
-dpt_head_load   DB      1             ; unload=4ms, 1=no dma used
-dpt_motor_wait  DB      0             ; 0 ticks
-dpt_bytes_sec   DB      2             ; 512 bytes per sector
-dpt_sec_trk     DB      9             ; 9 sectors per track
-dpt_gap         DB      0
+dpt_head_unload DB      191
+dpt_head_load   DB      2
+dpt_motor_wait  DB      37
+dpt_bytes_sec   DB      2
+dpt_sec_trk     DB      9
+dpt_gap         DB      27
 dpt_data_len    DB      0FFh
-dpt_gap_len_f   DB      0
+dpt_gap_len_f   DB      108
 dpt_fill_byte   DB      0F6h
-dpt_head_sett   DB      0
-dpt_motor_st    DB      0
+dpt_head_sett   DB      15
+dpt_motor_st    DB      8
+
+;dpt_head_unload DB      0             ; unload=32ms, steprate=2ms
+;dpt_head_load   DB      1             ; unload=4ms, 1=no dma used
+;dpt_motor_wait  DB      0             ; 0 ticks
+;dpt_bytes_sec   DB      2             ; 512 bytes per sector
+;dpt_sec_trk     DB      9             ; 9 sectors per track
+;dpt_gap         DB      0
+;dpt_data_len    DB      0FFh
+;dpt_gap_len_f   DB      0
+;dpt_fill_byte   DB      0F6h
+;dpt_head_sett   DB      0
+;dpt_motor_st    DB      0
 

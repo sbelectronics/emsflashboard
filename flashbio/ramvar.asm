@@ -73,6 +73,13 @@ struc   RAMVARS
 	.signature  resb 2
         .int13_old  resb 4
         .last_ah    resb 1
+
+        .ax         resb 2
+        .cx         resb 2
+        .dx         resb 2
+        .si         resb 2
+        .di         resb 2
+
 %ifdef WRITE_SUPPORT
         .write_and_wait_func_addr   resb 4
         .write_and_wait_func   resb 128

@@ -36,6 +36,7 @@ int13_handler:
 %ifdef  INT13_PRINTREGS
         CALL    printregs_enter
 %endif
+        CLI            ;; XXX
         PUSH    DS
         CALL    find_ramvars
         CMP     DL, [CS:drive_num]
@@ -64,6 +65,10 @@ unsupported_function:
         JMP     int13_error_return
 
 iret_fuss_with_carry_flag:
+        STI               ;; XXX
+        RETF    2
+
+iret_fuss_with_carry_flag_medium:
         JC .carryset
         PUSH    BP
         MOV     BP, SP
@@ -98,6 +103,10 @@ iret_fuss_with_carry_flag_old:
 int13_error_return:
         MOV     [RAMVARS.last_ah], ah
 
+        PUSH    0
+        POP     DS
+        MOV     [DS:441h], ah     ; last status in BDA
+
         POP     BX
         POP     DS
         STC                       ; set carry
@@ -109,6 +118,10 @@ int13_error_return:
 int13_success_return:
         ;; For all functions except 8h and 15h. Error code is in AH.
         MOV     [RAMVARS.last_ah], ah
+
+        PUSH    0
+        POP     DS
+        MOV     [DS:441h], ah     ; last status in BDA
 
         POP     BX
         POP     DS
@@ -122,6 +135,10 @@ int13_success_return_zero:
         ;; For function 15h, which returns AH != 0, even on success
         MOV     [RAMVARS.last_ah], BYTE 0
 
+        PUSH    0
+        POP     DS
+        MOV     [DS:441h], BYTE 0 ; last status in BDA
+
         POP     BX
         POP     DS
         CLC                       ; clear carry
@@ -133,6 +150,10 @@ int13_success_return_zero:
 int13_success_return_bx:
         ;; For function 8h, and anyone else who returns stuff in BX
         MOV     [RAMVARS.last_ah], ah
+
+        PUSH    0
+        POP     DS
+        MOV     [DS:441h], ah     ; last status in BDA
 
         POP     DS                ; get BX off the stack; we'll overwrite DX in a moment
         POP     DS
