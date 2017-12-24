@@ -110,7 +110,10 @@ print_char:
 
 print_hex_byte:
         push    BX
-        rol     al, 4
+        rol     al, 1
+        rol     al, 1
+        rol     al, 1
+        rol     al, 1
         mov     bl, al
         and     bl, 0Fh
         add     bl, 30h
@@ -122,7 +125,10 @@ print_hex_byte:
         call    print_char
         xchg    bl, al
 
-        rol     al, 4
+        rol     al, 1
+        rol     al, 1
+        rol     al, 1
+        rol     al, 1
         mov     bl, al
         and     bl, 0Fh
         add     bl, 30h

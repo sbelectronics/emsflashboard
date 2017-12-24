@@ -26,7 +26,12 @@ steal_ram_bios:
 %endif
 	MOV	[DS:413h], AX   ; store the reduced number of pages
 
-	SHL     AX, 6 		; AX holds segment of RAMVARS
+	SHL     AX, 1 		; AX holds segment of RAMVARS
+	SHL     AX, 1
+	SHL     AX, 1
+	SHL     AX, 1
+	SHL     AX, 1
+	SHL     AX, 1
         MOV	DS, AX
 	MOV     WORD [DS:RAMVARS.signature], RAMVARS_SIGNATURE
 
@@ -43,7 +48,13 @@ find_ramvars_bios:
         XOR     AX, AX
         MOV     DS, AX                         ; DS=0, seg of BDA
         MOV     DI, [DS:413h]                  ; Load available base memory size in kB
-        SHL     DI, 6
+        SHL     DI, 1
+        SHL     DI, 1
+        SHL     DI, 1
+        SHL     DI, 1
+        SHL     DI, 1
+        SHL     DI, 1
+
 .LoopStolenKBs:
         mov             ds, di                                  ; EBDA segment to DS
         add             di, BYTE 64                             ; DI to next stolen kB

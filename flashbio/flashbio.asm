@@ -6,10 +6,12 @@
 
         org 100h
 
+cpu 8086
+	
 section .text
 
 ;; Uncomment the following for lots of debugging
-%define INT13_PRINTREGS
+;; %define INT13_PRINTREGS
 
 ;; Uncomment the following to install as a TSR, for testing of the COM file
 ;; from the dos prompt.

@@ -163,7 +163,8 @@ write_one_sector:
 
         CALL    chs_to_blk             ; DX = block number, AX/BX/CX=wrecked
         AND     DX, 07h                ; There are 8 512B blocks per 4K sector
-        SHL     DX, 9                  ; DX is offset into 4K sector
+        MOV     CL, 9
+        SHL     DX, CL                 ; DX is offset into 4K sector
 
         MOV     AX, ES                 ; save user segment in AX
 
@@ -329,12 +330,14 @@ blk_to_page:
         ;; destroys
         ;;   CX
         MOV     AX, DX
-        SHR     AX, 5                  ; divide by 32 sectors per bank
+        MOV     CL, 5
+        SHR     AX, CL                 ; divide by 32 sectors per bank
         MOV     CX, DX
         AND     CX, 0xFFE0             ; CX = bank * 32
         MOV     SI, DX
         SUB     SI, CX                 ; SI = block number within bank
-        SHL     SI, 9                  ; SI = byte offset within bank
+        MOV     CL, 9
+        SHL     SI, CL                  ; SI = byte offset within bank
         RET
 
 
